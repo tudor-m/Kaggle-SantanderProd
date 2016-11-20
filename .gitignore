@@ -1,0 +1,6 @@
+.Rproj.user
+.Rhistory
+.RData
+data/*.*
+R/nav.csv
+public/*.csv

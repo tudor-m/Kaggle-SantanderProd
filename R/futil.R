@@ -26,6 +26,9 @@ errMeasure3 <- function (vPred, vTarget)
 errMeasure4 <- function (vPred, vTarget, threshold)
 {
   # Mathew Correlation Coefficient
+  vPred[which(is.na(vPred))] = 0
+  vTarget[which(is.na(vTarget))] = 0
+
   vPred[which(vPred <= threshold)] = 0
   vPred[which(vPred > threshold)] = 1
   
@@ -36,31 +39,6 @@ errMeasure4 <- function (vPred, vTarget, threshold)
   return(TP*(TN-FP/TP)/(sqrt(TP+FP)*sqrt(TP+FN)*sqrt(TN+FP)*sqrt(TN+FN)))
 }
 
-errMeasure5 <- function (vPred, vTarget, threshold)
-{
-  vPred[which(vPred <= threshold)] = 0
-  vPred[which(vPred > threshold)] = 1
-  
-  TP = sum((vTarget == 1 & vPred == 1))
-  TN = sum((vTarget == 0 & vPred == 0))
-  FP = sum((vTarget == 0 & vPred == 1))
-  FN = sum((vTarget == 1 & vPred == 0))
-  #return(TP/(FN+TP))
-  return(TP)
-}
-
-errMeasure6 <- function (vPred, vTarget, threshold)
-{
-  vPred[which(vPred <= threshold)] = 0
-  vPred[which(vPred > threshold)] = 1
-  
-  TP = sum((vTarget == 1 & vPred == 1))
-  TN = sum((vTarget == 0 & vPred == 0))
-  FP = sum((vTarget == 0 & vPred == 1))
-  FN = sum((vTarget == 1 & vPred == 0))
-  #return(abs((TP-TN)/TN))
-  return(TP+FP)
-}
 
 
 saveDataT <- function(object,data.base.name,object.name,compress = FALSE)
