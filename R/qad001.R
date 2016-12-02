@@ -17,7 +17,7 @@ response_features = c("ind_ahor_fin_ult1","ind_aval_fin_ult1","ind_cco_fin_ult1"
 selected_features = c("pais_residencia","sexo","age","antiguedad","canal_entrada", "cod_prov","renta" , "segmento")           
 factor_features   = c("pais_residencia","sexo","canal_entrada","segmento")
 
-# Read train data:
+# Read train data, selected features and response features:
 intrd = fread(trf,select = c(selected_features,response_features), nrows=-1)
 
 # Repeat a few times:   SKIP
@@ -39,6 +39,7 @@ for (j in factor_features)
  ensd[[j]] = as.numeric(as.factor(ensd[[j]]))
  cvd[[j]] = as.numeric(as.factor(cvd[[j]]))
 }
+# quick analysis of responses:
 for (j in response_features)
 {
   print(j)
@@ -52,10 +53,12 @@ for (j in response_features)
   print(unique(v))
   print(c(sum(v==0,na.rm=T),sum(v==1,na.rm=T),sum(is.na(v))))
 }
-fit.dev.xgb.model = list()
+
+fit.dev.xgb = list()
 pred.dev.xgb = list()
 pred.cv.xgb = list()
-for (iresp in 1:length(response_features))
+thr1_0.dev.xgb = list()
+for (iresp in 1:length(response_features)) # 1 model for each feature:
 {
   print(c("iresp=",iresp))
   nnav = which(!is.na(devd[[response_features[iresp]]])) # keep only the nonNA
@@ -108,17 +111,24 @@ for (thr in seq(0.15,0.15,0.15))
         )
         set.seed(100)
         fit.dev = xgb.train(params=param,dtrain,nrounds=nround,print.every.n = 2,maximize = FALSE,watchlist)
+        # important: find the best threshold for 1s:
+        ratio1_0 = sum(dtrain.label)/length(dtrain.label)
+        pred = predict(fit.dev,dtrain)
+        thr1_0 = sort(pred, decreasing = TRUE)[ratio1_0*length(pred)]
+        pred_norm = pred/thr1_0
       }
     }
     # Model array:
-    fit.dev.xgb.model[[iresp]] = fit.dev
-    pred.dev.xgb.pred[[iresp]] = predict(fit.dev,dtrain)
-    pred.cv.xgb.pred[[iresp]] = predict(fit.dev,dtest)
+    fit.dev.xgb[[iresp]] = fit.dev
+    pred.dev.xgb[[iresp]] = predict(fit.dev,dtrain)
+    pred.cv.xgb[[iresp]] = predict(fit.dev,dtest)
+    thr1_0.dev.xgb[[iresp]] = thr1_0
   }
 }
+
+
+
 pred = predict(fit.dev,dtrain)
-
-
 
 
 intsn = names(fread(tsf,nrows=0)) # train data names
