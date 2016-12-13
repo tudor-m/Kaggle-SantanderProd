@@ -224,13 +224,13 @@ if __name__ == "__main__":
             param['colsample_bytree'] = 0.9
             param['seed'] = 123
             param['nthread'] = 2
-            num_rounds = 80
+            num_rounds = 120
 
             print("Cross validation ...")
             print([md,mw])
-            #cvhist = cvXGB(train_X, train_y, param=param, nfold=4, num_rounds=num_rounds, cvseed=100,verbose_eval=10)
-            #cvhist_list.append(cvhist)
-            #mdmw_list.append([md,mw])
+            cvhist = cvXGB(train_X, train_y, param=param, nfold=4, num_rounds=num_rounds, cvseed=100,verbose_eval=10)
+            cvhist_list.append(cvhist)
+            mdmw_list.append([md,mw])
 
     print("Building model..")
     model = runXGB(train_X, train_y, seed_val=0, param=param, num_rounds=num_rounds)
