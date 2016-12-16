@@ -39,8 +39,8 @@ public class enssem {
 		FileWriter fw = new FileWriter("app.out.csv");
 		fw.write("added_products,ncodpers\n");
 		
-		FileReader[] fr_list = new FileReader[100];
-		Double[] w_list = new Double[100];   // weight list
+		FileReader[] fr_list = new FileReader[10];
+		Double[] w_list = new Double[10];   // weight list
 		Integer nfiles = 0;
 		FileReader appcfg = new FileReader("app.cfg");
 		BufferedReader b1 = new BufferedReader(appcfg);
@@ -56,30 +56,40 @@ public class enssem {
 		}
 		ArrayList<Integer> cust_list = new ArrayList<>();
 		
+		String st;
+		String[] sts;
+		String[] sts2;
+		//Double[] feat_score;
+		Integer[] feat_score = new Integer[tf.length];
+
 		HashMap[] mp_list = new HashMap[fr_list.length]; // score maps
 		for (int j =0;j<nfiles;j++)
 		{
+			System.out.println("Process file "+(1+j));
 			FileReader fr = fr_list[j];
 			BufferedReader br = new BufferedReader(fr);
-			String st;
-			HashMap<Integer,Double[]> mp = new HashMap<>();
+			//String st;
+			HashMap<Integer,Integer[]> mp = new HashMap<>(950000);
 			while((st = br.readLine()) != null)
 			{
 				int cod = 1;
-				String[] sts = st.split(",");
+				//String[] sts = st.split(",");
+				sts = st.split(",");
 				int cust_id = 0;
 				try {cust_id = Integer.parseInt(sts[1]);}
 				catch (NumberFormatException e)
 					{cod = 0;}
 				if (cod == 0) continue;
-				String[] sts2 = sts[0].split(" ");
-				Double[] feat_score = new Double[tf.length];
-				Arrays.fill(feat_score, 0.);
+				//String[] sts2 = sts[0].split(" ");
+				sts2 = sts[0].split(" ");
+				//Double[] feat_score = new Double[tf.length];
+				//feat_score = new Double[tf.length];
+				Arrays.fill(feat_score, 0);
 				for (int i=0;i<sts2.length;i++)
 				{
-					feat_score[fm.get(sts2[i])] = 10.-i;
-					mp.put(cust_id,feat_score);
+					feat_score[fm.get(sts2[i])] = 10-i;
 				}
+				mp.put(cust_id,Arrays.copyOf(feat_score,feat_score.length));
 				if (j==0)
 					cust_list.add(cust_id);
 				//System.out.println(cust_id);
@@ -88,18 +98,23 @@ public class enssem {
 			mp_list[j] = mp;
 			br.close();
 			fr.close();
+			System.gc();
 		}
 		//HashMap<Integer,Double[]> mp_comb = new HashMap<>();
 		// Combine the maps:
+		System.out.println("Process the map combinaton");
 		for (int kkk=0;kkk<cust_list.size();kkk++)
 		{
 			Integer tmpCust = cust_list.get(kkk);
 			Double[] f_score = new Double[tf.length];
 			Arrays.fill(f_score, 0.);
+			//Integer tmpi=0;
 			for (int i=0;i<tf.length;i++)
 			{
 				for (int j=0;j<nfiles;j++)
-					f_score[i]+= ((Double[])mp_list[j].get(tmpCust))[i] *w_list[j];
+				{
+					f_score[i]+= ((Integer[])mp_list[j].get(tmpCust))[i] *w_list[j];
+				}
 				f_score[i] = f_score[i]/nfiles;
 			}
 			//mp_comb.put(tmpCust, f_score);
