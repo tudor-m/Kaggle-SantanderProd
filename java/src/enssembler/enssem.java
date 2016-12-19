@@ -38,9 +38,9 @@ public class enssem {
 		
 		FileWriter fw = new FileWriter("app.out.csv");
 		fw.write("added_products,ncodpers\n");
-		
-		FileReader[] fr_list = new FileReader[10];
-		Double[] w_list = new Double[10];   // weight list
+		int maxFiles=20;
+		FileReader[] fr_list = new FileReader[maxFiles];
+		Double[] w_list = new Double[maxFiles];   // weight list
 		Integer nfiles = 0;
 		FileReader appcfg = new FileReader("app.cfg");
 		BufferedReader b1 = new BufferedReader(appcfg);
