@@ -64,6 +64,7 @@ target_cols_i = ['ind_ahor_fin_ult1', 'ind_aval_fin_ult1', 'ind_cco_fin_ult1', '
                'ind_viv_fin_ult1', 'ind_nomina_ult1', 'ind_nom_pens_ult1', 'ind_recibo_ult1']
 target_cols = target_cols_i[2:]
 target_cols = target_cols_i[2:10]
+lt = target_cols.__len__()
 
 
 def getTarget(row):
@@ -150,7 +151,7 @@ def processData(in_file_name, cust_dict):
             target_list = getTarget(row)
             cust_dict[cust_id] = target_list[:]
             continue
-
+        ltt = target_list.__len__()
         x_vars = []
         for col in cat_cols:
             x_vars.append(getIndex(row, col))
@@ -159,16 +160,19 @@ def processData(in_file_name, cust_dict):
         x_vars.append(getRent(row))
 
         if row['fecha_dato'] == '2016-06-28':
-            prev_target_list = cust_dict.get(cust_id, [0] * 22)
+            #prev_target_list = cust_dict.get(cust_id, [0] * 22)
+            prev_target_list = cust_dict.get(cust_id, [0] * ltt)
             x_vars_list.append(x_vars + prev_target_list)
         elif row['fecha_dato'] == '2015-06-28':
-            prev_target_list = cust_dict.get(cust_id, [0] * 22)
+            #prev_target_list = cust_dict.get(cust_id, [0] * 22)
+            prev_target_list = cust_dict.get(cust_id, [0] * ltt)
             target_list = getTarget(row)
             new_products = [max(x1 - x2, 0) for (x1, x2) in zip(target_list, prev_target_list)]
             if sum(new_products) > 0:
                 for ind, prod in enumerate(new_products):
                     if prod > 0:
-                        assert len(prev_target_list) == 22
+                        #assert len(prev_target_list) == 22
+                        assert len(prev_target_list) == ltt
                         x_vars_list.append(x_vars + prev_target_list)
                         y_vars_list.append(ind)
 
