@@ -115,7 +115,7 @@ public class enssem {
 				{
 					f_score[i]+= ((Integer[])mp_list[j].get(tmpCust))[i] *w_list[j];
 				}
-				f_score[i] = f_score[i]/nfiles*(1+0.2*(Math.random()-0.5));
+				f_score[i] = f_score[i]/nfiles*(1+0.0*(Math.random()-0.5));
 			}
 			//mp_comb.put(tmpCust, f_score);
 			// Sort the score list:
