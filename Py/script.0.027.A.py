@@ -63,7 +63,7 @@ target_cols_i = ['ind_ahor_fin_ult1', 'ind_aval_fin_ult1', 'ind_cco_fin_ult1', '
                'ind_plan_fin_ult1', 'ind_pres_fin_ult1', 'ind_reca_fin_ult1', 'ind_tjcr_fin_ult1', 'ind_valo_fin_ult1',
                'ind_viv_fin_ult1', 'ind_nomina_ult1', 'ind_nom_pens_ult1', 'ind_recibo_ult1']
 target_cols = target_cols_i[2:]
-target_cols = target_cols_i[2:10]
+target_cols = target_cols_i[3:4]
 lt = target_cols.__len__()
 
 
@@ -139,6 +139,7 @@ def getRent(row):
 
 
 def processData(in_file_name, cust_dict):
+    ltt = 0
     x_vars_list = []
     y_vars_list = []
     for row in csv.DictReader(in_file_name):
@@ -150,8 +151,8 @@ def processData(in_file_name, cust_dict):
         if row['fecha_dato'] in ['2015-05-28', '2016-05-28']:
             target_list = getTarget(row)
             cust_dict[cust_id] = target_list[:]
+            print("update cust_dict")
             continue
-        ltt = target_list.__len__()
         x_vars = []
         for col in cat_cols:
             x_vars.append(getIndex(row, col))
@@ -160,10 +161,18 @@ def processData(in_file_name, cust_dict):
         x_vars.append(getRent(row))
 
         if row['fecha_dato'] == '2016-06-28':
+            if ltt==0:
+                kkk = cust_dict.keys()[1]
+                ltt = cust_dict.get(kkk).__len__()
+                print(ltt)
             #prev_target_list = cust_dict.get(cust_id, [0] * 22)
             prev_target_list = cust_dict.get(cust_id, [0] * ltt)
             x_vars_list.append(x_vars + prev_target_list)
         elif row['fecha_dato'] == '2015-06-28':
+            if ltt==0:
+                kkk = cust_dict.keys()[1]
+                ltt = cust_dict.get(kkk).__len__()
+                print(ltt)
             #prev_target_list = cust_dict.get(cust_id, [0] * 22)
             prev_target_list = cust_dict.get(cust_id, [0] * ltt)
             target_list = getTarget(row)
@@ -202,7 +211,7 @@ if __name__ == "__main__":
     train_X = np.array(x_vars_list)
     train_y = np.array(y_vars_list)
     print(np.unique(train_y))
-    # del x_vars_list, y_vars_list
+    del x_vars_list, y_vars_list
     train_file.close()
     print(train_X.shape, train_y.shape)
     test_file = open(data_path + "test_ver2.csv")
@@ -218,12 +227,14 @@ if __name__ == "__main__":
         for mw in range(2,3):
 
             param = {}
-            param['objective'] = 'multi:softprob'
+            #param['objective'] = 'multi:softprob'
+            param['objective'] = 'binary:logistic'
             param['eta'] = 0.05
             param['max_depth'] = md #6
             param['silent'] = 1
             param['num_class'] = 22
-            param['eval_metric'] = "mlogloss"
+            #param['eval_metric'] = "mlogloss"
+            param['eval_metric'] = "logloss"
             param['min_child_weight'] = mw #2
             param['subsample'] = 0.9
             param['colsample_bytree'] = 0.9
